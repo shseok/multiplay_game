@@ -18,6 +18,12 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
   final TextEditingController _nameController = TextEditingController();
 
   @override
+  void dispose() {
+    super.dispose();
+    _nameController.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
 
     final size = MediaQuery.of(context).size;
