@@ -17,8 +17,7 @@ const DB = "mongodb+srv://hyeon:test123@cluster0.se3yt.mongodb.net/myFirstDataba
 io.on('connection', (socket) => {
     console.log('connection event: connected!');
     socket.on("createRoom", async ({ nickname }) => { 
-        console.log(nickname);
-        console.log(socket.id);
+        console.log('server create listen')
         try {
         // 방이 만들어진다.
         let room = new Room();
@@ -36,11 +35,46 @@ io.on('connection', (socket) => {
         socket.join(roomId); // 플레이어는 방에 저장된다. ( 다른 방에 접근 x 하도록. 즉, 메시지가 가지않도록)
         // io -> send data to everyone
         // socket -> sending data to yourself
-            io.to(roomId).emit("createRoomSuccess", room); // 방에 있는 모든 사람들에게 전달
+        io.to(roomId).emit("createRoomSuccess", room); // 방에 있는 모든 사람들에게 전달
         } catch (e) {
             console.log(e);
         }
     });
+
+    socket.on("joinRoom", async ({ nickname, roomId }) => {
+        console.log('server join listen');   
+    try {
+        if (!roomId.match(/^[0-9a-fA-F]{24}$/)) {
+        console.log('check invalid Id ');
+        socket.emit("errorOccurred", "Please enter a valid room ID.");
+        return;
+      }
+      let room = await Room.findById(roomId); // mongo 내장함수
+
+      if (room.isJoin) {
+        let player = {
+          nickname,
+          socketID: socket.id,
+          playerType: "O",
+        };
+        socket.join(roomId);
+        room.players.push(player);
+        room.isJoin = false;
+        room = await room.save();
+        io.to(roomId).emit("joinRoomSuccess", room);
+        io.to(roomId).emit("updatePlayers", room.players);
+        io.to(roomId).emit("updateRoom", room);
+      } else {
+        console.log('check The game is in progress');
+        socket.emit(
+          "errorOccurred",
+          "The game is in progress, try again later."
+        );
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  });
 });
 
 mongoose.connect(DB).then(() => {
