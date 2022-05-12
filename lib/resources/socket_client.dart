@@ -6,7 +6,7 @@ class SocketClient{ // single tone pattern
   IO.Socket? socket;
   static SocketClient? _instance;
   
-  SocketClient._internal(){
+  SocketClient._internal(){ // initializeSocket
     socket = IO.io(uri, <String, dynamic>{
       'transports': ['websocket'],
       'autoConnect': false,
