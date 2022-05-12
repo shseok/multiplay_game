@@ -63,7 +63,7 @@ io.on('connection', (socket) => {
         room = await room.save();
         io.to(roomId).emit("joinRoomSuccess", room);
         io.to(roomId).emit("updatePlayers", room.players);
-        io.to(roomId).emit("updateRoom", room);
+        io.to(roomId).emit("updateRoom", room); // waiting -> start로 화면을 업데이트 하기 위함
       } else {
         console.log('check The game is in progress');
         socket.emit(
