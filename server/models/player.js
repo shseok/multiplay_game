@@ -16,6 +16,10 @@ const playerSchema = new mongoose.Schema({
     required: true, // ? 
     type: String,
   },
+  isPartyLeader: {
+    type: Boolean,
+    default: false,
+  }
 });
 
 module.exports = playerSchema;

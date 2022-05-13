@@ -40,6 +40,16 @@ class SocketMethods {
     }
   }
 
+  // playerId를 주고 server에서 leader를 찾으라는 방식 / 하지만 여기서 nickname을 주고 찾으라고 할 수도 있겠다.
+  void startTimer(String roomId, String playerId){
+    _socketClient.emit('timer',
+      {
+        'playerId': playerId,
+        'roomId': roomId,
+      }
+    );
+  }
+
   // LISTENERS
   void createRoomSuccessListener(BuildContext context) {
     _socketClient.on('createRoomSuccess', (room) {
@@ -113,4 +123,5 @@ class SocketMethods {
       Navigator.popUntil(context, (route) => false);
     });
   }
+
 }

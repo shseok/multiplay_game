@@ -24,7 +24,8 @@ io.on('connection', (socket) => {
         let player = {
             socketID: socket.id,
             nickname,
-            playerType: "X",
+          playerType: "X", // 제거하기
+            isPartyLeader: true,
         };
         room.players.push(player);
         room.turn = player;
@@ -117,6 +118,17 @@ io.on('connection', (socket) => {
       console.log(e);
     }
   });
+
+  socket.on("timer", async ({ playerId, roomId }) => {
+    let countDown = 5;
+    console.log("timer started!");
+    let room = await Room.findById(roomId);
+    let player = room.players.id(playerId);
+
+    if (player.isPartyLeader) {
+      
+    }
+  })
 });
 
 mongoose.connect(DB).then(() => {

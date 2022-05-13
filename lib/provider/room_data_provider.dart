@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../models/player.dart';
 
-
 class RoomDataProvider extends ChangeNotifier {
   Map<String, dynamic> _roomData = {};
   List<String> _displayElement = ['', '', '', '', '', '', '', '', ''];
@@ -12,19 +11,24 @@ class RoomDataProvider extends ChangeNotifier {
     socketID: '',
     points: 0,
     playerType: 'X',
+    isPartyLeader: false,
   );
 
   Player _player2 = Player(
-    nickname: '',
-    socketID: '',
-    points: 0,
-    playerType: 'O',
-  );
+      nickname: '',
+      socketID: '',
+      points: 0,
+      playerType: 'O',
+      isPartyLeader: false);
 
   Map<String, dynamic> get roomData => _roomData;
+
   List<String> get displayElements => _displayElement;
+
   int get filledBoxes => _filledBoxes;
+
   Player get player1 => _player1;
+
   Player get player2 => _player2;
 
   void updateRoomData(Map<String, dynamic> data) {
