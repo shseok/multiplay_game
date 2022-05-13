@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mp_game/responsive/responsive.dart';
 import 'package:mp_game/widgets/custom_textfield.dart';
 
+import '../resources/socket_methods.dart';
 import '../widgets/custom_button.dart';
 import '../widgets/custom_text.dart';
 
@@ -14,8 +15,14 @@ class CreateRoomScreen extends StatefulWidget {
 }
 
 class _CreateRoomScreenState extends State<CreateRoomScreen> {
-
   final TextEditingController _nameController = TextEditingController();
+  final SocketMethods _socketMethods = SocketMethods();
+
+  @override
+  void initState() {
+    _socketMethods.createRoomSuccessListener(context);
+    super.initState();
+  }
 
   @override
   void dispose() {
@@ -51,7 +58,7 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
               CustomTextField(controller: _nameController,
                 hintText: '닉네임을 입력해주세요',),
               SizedBox(height: size.height * 0.03),
-              CustomButton(onTap: (){}, text: '생성'),
+              CustomButton(onTap: () => _socketMethods.createRoom(_nameController.text), text: '참여'),
             ],
           ),
         ),

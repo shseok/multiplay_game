@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 
+import '../resources/socket_methods.dart';
 import '../responsive/responsive.dart';
 import '../widgets/custom_button.dart';
 import '../widgets/custom_text.dart';
 import '../widgets/custom_textfield.dart';
 
 class JoinRoomScreen extends StatefulWidget {
-
   static String routeName = '/join-room';
 
   const JoinRoomScreen({Key? key}) : super(key: key);
@@ -18,6 +18,17 @@ class JoinRoomScreen extends StatefulWidget {
 class _JoinRoomScreenState extends State<JoinRoomScreen> {
   final TextEditingController _gameIdController = TextEditingController();
   final TextEditingController _nameController = TextEditingController();
+  final SocketMethods _socketMethods = SocketMethods();
+
+  @override
+  void initState() {
+    _socketMethods.joinRoomSuccessListener(context);
+    _socketMethods.errorOccuredListener(context);
+    _socketMethods.updateRoomListener(context);
+    _socketMethods.updateRoomListener(context);
+
+    super.initState();
+  }
 
   @override
   void dispose() {
@@ -48,13 +59,20 @@ class _JoinRoomScreenState extends State<JoinRoomScreen> {
                 fontSize: 70,
               ),
               SizedBox(height: size.height * 0.08),
-              CustomTextField(controller: _nameController,
-                hintText: '닉네임을 입력해주세요',),
+              CustomTextField(
+                controller: _nameController,
+                hintText: '닉네임을 입력해주세요',
+              ),
               SizedBox(height: 20),
-              CustomTextField(controller: _nameController,
-                hintText: '게임 방 번호를 입력해주세요',),
+              CustomTextField(
+                controller: _gameIdController,
+                hintText: '게임 방 번호를 입력해주세요',
+              ),
               SizedBox(height: size.height * 0.03),
-              CustomButton(onTap: (){}, text: '생성'),
+              CustomButton(
+                  onTap: () => _socketMethods.joinRoom(
+                      _nameController.text, _gameIdController.text),
+                  text: '참여'),
             ],
           ),
         ),
