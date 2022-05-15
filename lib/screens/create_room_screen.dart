@@ -34,7 +34,6 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
   Widget build(BuildContext context) {
 
     final size = MediaQuery.of(context).size;
-    print(size.height);
 
     return Responsive(
       child: Scaffold(
@@ -58,7 +57,7 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
               CustomTextField(controller: _nameController,
                 hintText: '닉네임을 입력해주세요',),
               SizedBox(height: size.height * 0.03),
-              CustomButton(onTap: () => _socketMethods.createRoom(_nameController.text), text: '참여'),
+              CustomButton(onTap: () => _socketMethods.createRoom(_nameController.text), text: '생성'),
             ],
           ),
         ),

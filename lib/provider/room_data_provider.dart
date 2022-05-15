@@ -1,9 +1,24 @@
 import 'package:flutter/material.dart';
-
 import '../models/player.dart';
+import '../models/room.dart';
 
 class RoomDataProvider extends ChangeNotifier {
   Map<String, dynamic> _roomData = {};
+  Map<String, dynamic> get roomData => _roomData;
+
+  // GameRoomState _roomData = GameRoomState(
+  //   id: '',
+  //   players: [],
+  //   isJoin: true,
+  //   isOver: false,
+  //   turnIndex: 0,
+  //   maxRounds: 6,
+  //   occupancy: 3,
+  //   currentRound: 1,
+  // );
+  //
+  // Map<String, dynamic> get roomData => _roomData.toJson();
+
   List<String> _displayElement = ['', '', '', '', '', '', '', '', ''];
   int _filledBoxes = 0;
   Player _player1 = Player(
@@ -21,8 +36,6 @@ class RoomDataProvider extends ChangeNotifier {
       playerType: 'O',
       isPartyLeader: false);
 
-  Map<String, dynamic> get roomData => _roomData;
-
   List<String> get displayElements => _displayElement;
 
   int get filledBoxes => _filledBoxes;
@@ -32,6 +45,7 @@ class RoomDataProvider extends ChangeNotifier {
   Player get player2 => _player2;
 
   void updateRoomData(Map<String, dynamic> data) {
+    // _roomData = GameRoomState.fromMap(data);
     _roomData = data;
     notifyListeners();
   }

@@ -10,45 +10,29 @@ class Scoreboard extends StatelessWidget {
   Widget build(BuildContext context) {
     RoomDataProvider roomDataProvider = Provider.of<RoomDataProvider>(context);
 
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
+    return Column(
+      // mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Padding(
-          padding: const EdgeInsets.all(30),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                roomDataProvider.player1.nickname,
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              Text(
-                roomDataProvider.player1.points.toInt().toString(),
-                style: const TextStyle(
-                  fontSize: 20,
-                  color: Colors.white,
-                ),
-              ),
-            ],
-          ),
+        Text('현재 순위'),
+        Row(
+          // mainAxisAlignment: MainAxisAlignment.start,
+          children: [Text('이름'), SizedBox(width: 30.0,), Text('점수')],
         ),
-        Padding(
-          padding: const EdgeInsets.all(30),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+        for(var player in roomDataProvider.roomData['players']) Padding(
+          padding: const EdgeInsets.all(2),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
               Text(
-                roomDataProvider.player2.nickname,
+                player['nickname'],
                 style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                 ),
               ),
+              SizedBox(width: 30.0,),
               Text(
-                roomDataProvider.player2.points.toInt().toString(),
+                player['points'].toInt().toString(),
                 style: const TextStyle(
                   fontSize: 20,
                   color: Colors.white,

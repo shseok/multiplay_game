@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mp_game/provider/client_data_provider.dart';
 import 'package:mp_game/resources/socket_client.dart';
 import 'package:provider/provider.dart';
 import 'package:socket_io_client/socket_io_client.dart';
@@ -41,13 +42,11 @@ class SocketMethods {
   }
 
   // playerId를 주고 server에서 leader를 찾으라는 방식 / 하지만 여기서 nickname을 주고 찾으라고 할 수도 있겠다.
-  void startTimer(String roomId, String playerId){
-    _socketClient.emit('timer',
-      {
-        'playerId': playerId,
-        'roomId': roomId,
-      }
-    );
+  void startTimer(String roomId, String playerId) {
+    _socketClient.emit('timer', {
+      'roomId': roomId,
+      'playerId': playerId,
+    });
   }
 
   // LISTENERS
@@ -85,16 +84,24 @@ class SocketMethods {
   }
 
   void updateRoomListener(BuildContext context) {
+    // createRoomSuccessListener와 비슷하지만 navigator x
     _socketClient.on('updateRoom', (data) {
       Provider.of<RoomDataProvider>(context, listen: false)
           .updateRoomData(data);
     });
   }
 
+  void updateTimer(BuildContext context) {
+    _socketClient.on('timer', (data) {
+      Provider.of<ClientDataProvider>(context, listen: false)
+          .setClientState(data);
+    });
+  }
+
   void tappedListener(BuildContext context) {
     _socketClient.on('tapped', (data) {
       RoomDataProvider roomDataProvider =
-      Provider.of<RoomDataProvider>(context, listen: false);
+          Provider.of<RoomDataProvider>(context, listen: false);
       roomDataProvider.updateDisplayElements(
         data['index'],
         data['choice'],
@@ -108,7 +115,7 @@ class SocketMethods {
   void pointIncreaseListener(BuildContext context) {
     _socketClient.on('pointIncrease', (playerData) {
       var roomDataProvider =
-      Provider.of<RoomDataProvider>(context, listen: false);
+          Provider.of<RoomDataProvider>(context, listen: false);
       if (playerData['socketID'] == roomDataProvider.player1.socketID) {
         roomDataProvider.updatePlayer1(playerData);
       } else {
@@ -123,5 +130,4 @@ class SocketMethods {
       Navigator.popUntil(context, (route) => false);
     });
   }
-
 }

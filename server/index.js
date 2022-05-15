@@ -14,6 +14,19 @@ const Room = require('./models/room');
 
 const DB = "mongodb+srv://hyeon:test123@cluster0.se3yt.mongodb.net/myFirstDatabase?retryWrites=true&w=majority";
 
+const questions = [
+	{ id: 1, oxQuestion: "이 앱의 이름은 다모여이다.", oxAnswer: "o", explanation: "이 앱의 이름은 다모여가 맞다." },
+	{ id: 2, oxQuestion: "이 앱을 만든 조의 이름은 BOOM이다", oxAnswer: "x", explanation: "이 앱을 만든 조의 이름은 BOM이다." },
+	{ id: 3, oxQuestion: "이 앱을 만든 조는 6조이다.", oxAnswer: "o", explanation: "이 앱을 만든 조는 6조가 맞다." },
+	{ id: 4, oxQuestion: "토마토는 과일이 아니라 채소이다.", oxAnswer: "o", explanation: "토마토는 채소이다." },
+	{ id: 5, oxQuestion: "원숭이에게는 지문이 없다.", oxAnswer: "x", explanation: "원숭이에게도 지문이 있다." },
+	{ id: 6, oxQuestion: "가장 강한 독을 가진 개구리 한마리의 독으로 사람 2000명 이상을 죽일 수 있다.", oxAnswer: "o", explanation: "아프리카에 사는 식인 개구리의 독성으로 2000명의 사람을 죽일 수 있다." },
+	{ id: 7, oxQuestion: "달팽이는 이빨이 있다", oxAnswer: "o", explanation: "달팽이도 이빨이 있다." },
+	{ id: 8, oxQuestion: "고양이는 잠을 잘 때 꿈을 꾼다", oxAnswer: "o", explanation: "고양이도 잠을 잘 때 꿈을 꾼다." },
+	{ id: 9, oxQuestion: "물고기도 색을 구분할 수 있다.", oxAnswer: "o", explanation: "물고기도 색을 구분한다." },
+	{ id: 10, oxQuestion: "낙지의 심장은 3개이다", oxAnswer: "o", explanation: "낙지의 심장은 3개이다." }
+];
+
 io.on('connection', (socket) => {
     console.log('connection event: connected!');
     socket.on("createRoom", async ({ nickname }) => { 
@@ -25,9 +38,10 @@ io.on('connection', (socket) => {
             socketID: socket.id,
             nickname,
           playerType: "X", // 제거하기
-            isPartyLeader: true,
-        };
-        room.players.push(player);
+          isPartyLeader: true,
+          };
+          room.players.push(player);
+          questions.map((question) => room.questions.push(question));
         room.turn = player;
         room = await room.save(); // 몽고디비에 저장
         console.log(room);
@@ -52,7 +66,7 @@ io.on('connection', (socket) => {
       }
       let room = await Room.findById(roomId); // mongo 내장함수
 
-      if (room.isJoin) {
+      if (room.isJoin) { // 방의 인원이 다 차있지 않거나 시작되지 않았을 때
         let player = {
           nickname,
           socketID: socket.id,
@@ -60,7 +74,9 @@ io.on('connection', (socket) => {
         };
         socket.join(roomId);
         room.players.push(player);
-        room.isJoin = false;
+        if (room.players.length >= room.occupancy) { // 가득 찬 경우 참여불가
+          room.isJoin = false;
+        }
         room = await room.save();
         io.to(roomId).emit("joinRoomSuccess", room);
         io.to(roomId).emit("updatePlayers", room.players);
@@ -119,17 +135,55 @@ io.on('connection', (socket) => {
     }
   });
 
-  socket.on("timer", async ({ playerId, roomId }) => {
+  socket.on("timer", async ({ roomId, playerId }) => {
     let countDown = 5;
-    console.log("timer started!");
-    let room = await Room.findById(roomId);
-    let player = room.players.id(playerId);
+    console.log(`timer started! ${roomId} ${playerId} ${typeof(roomId)}`);
+    let room = await Room.findById(roomId); // mongoose.Model.findById
+    let player = room.players.id(playerId); // id 내장 함수??
 
+    console.log(`timer -> ${player}`);
     if (player.isPartyLeader) {
+      let timerId = setInterval(async () => {
+        if (countDown >= 0) {
+          io.to(roomId).emit(
+            "timer", {
+            countDown,
+            msg: "게임 준비중..."
+          }
+          );
+          console.log(countDown);
+          countDown--;
+        } else {
+          console.log('게임을 시작합니다!'); //  참여불가
+          room.isJoin = false;
+          room = await room.save();
+          io.to(roomId).emit("updateRoom", room);
+          startGameClock(roomId); // 본게임 countdown
+          clearInterval(timerId);
+        }
+      }, 1000);
+    } else {
       
     }
-  })
+  });
 });
+
+const startGameClock = (roomId) => {
+  let time = 10;
+
+  let timerId = setInterval(() => {
+    if (time >= 0) {
+      io.to(roomId).emit("timer", {
+        countDown: time,
+        msg: "남은 시간",
+      });
+      console.log(time);
+      time--;
+    } else {
+      clearInterval(timerId);
+      }
+  }, 1000);
+}
 
 mongoose.connect(DB).then(() => {
     console.log('Mongoose Connection successful!');

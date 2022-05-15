@@ -4,22 +4,26 @@
 /// explanation : "이 앱의 이름은 다모여가 맞다."
 
 class Question {
-  Question({
-      this.id, 
-      this.oxQuestion, 
-      this.oxAnswer, 
-      this.explanation,});
-
-  Question.fromJson(dynamic json) {
-    id = json['id'];
-    oxQuestion = json['oxQuestion'];
-    oxAnswer = json['oxAnswer'];
-    explanation = json['explanation'];
-  }
   int? id;
   String? oxQuestion;
   String? oxAnswer;
   String? explanation;
+
+  Question({
+      this.id,
+      this.oxQuestion,
+      this.oxAnswer,
+      this.explanation,});
+
+  factory Question.fromMap(Map<String, dynamic> map) {
+    return Question(
+      id: map['id'],
+      oxQuestion: map['oxQuestion'],
+      oxAnswer: map['oxAnswer'],
+      explanation: map['explanation']
+    );
+  }
+
 Question copyWith({  int? id,
   String? oxQuestion,
   String? oxAnswer,
@@ -29,7 +33,7 @@ Question copyWith({  int? id,
   oxAnswer: oxAnswer ?? this.oxAnswer,
   explanation: explanation ?? this.explanation,
 );
-  Map<String, dynamic> toJson() {
+  Map<String, dynamic> toMap() {
     final map = <String, dynamic>{};
     map['id'] = id;
     map['oxQuestion'] = oxQuestion;
