@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mp_game/responsive/responsive.dart';
 import 'package:mp_game/widgets/custom_textfield.dart';
 
@@ -16,11 +17,11 @@ class CreateRoomScreen extends StatefulWidget {
 
 class _CreateRoomScreenState extends State<CreateRoomScreen> {
   final TextEditingController _nameController = TextEditingController();
-  final SocketMethods _socketMethods = SocketMethods();
+  // final SocketMethods _socketMethods = SocketMethods();
 
   @override
   void initState() {
-    _socketMethods.createRoomSuccessListener(context);
+    // _socketMethods.createRoomSuccessListener(context);
     super.initState();
   }
 
@@ -35,33 +36,38 @@ class _CreateRoomScreenState extends State<CreateRoomScreen> {
 
     final size = MediaQuery.of(context).size;
 
-    return Responsive(
-      child: Scaffold(
-        body: Container(
-          margin: const EdgeInsets.symmetric(horizontal: 20),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              CustomText(
-                shadows: [
-                  Shadow(
-                    blurRadius: 40,
-                    color: Colors.blue,
+    return Consumer(
+      builder: (context, ref, child) {
+        ref.watch(socketMethodsProvider.notifier).createRoomSuccessListener(context);
+        return Responsive(
+          child: Scaffold(
+            body: Container(
+              margin: const EdgeInsets.symmetric(horizontal: 20),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  CustomText(
+                    shadows: [
+                      Shadow(
+                        blurRadius: 40,
+                        color: Colors.blue,
+                      ),
+                    ],
+                    text: '방 만들기',
+                    fontSize: 70,
                   ),
+                  SizedBox(height: size.height * 0.08),
+                  CustomTextField(controller: _nameController,
+                    hintText: '닉네임을 입력해주세요',),
+                  SizedBox(height: size.height * 0.03),
+                  CustomButton(onTap: () => ref.read(socketMethodsProvider.notifier).createRoom(_nameController.text), text: '생성'),
                 ],
-                text: '방 만들기',
-                fontSize: 70,
               ),
-              SizedBox(height: size.height * 0.08),
-              CustomTextField(controller: _nameController,
-                hintText: '닉네임을 입력해주세요',),
-              SizedBox(height: size.height * 0.03),
-              CustomButton(onTap: () => _socketMethods.createRoom(_nameController.text), text: '생성'),
-            ],
+            ),
           ),
-        ),
-      ),
+        );
+      }
     );
   }
 }

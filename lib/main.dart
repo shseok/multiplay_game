@@ -7,9 +7,10 @@ import 'package:mp_game/screens/join_room_screen.dart';
 import 'package:mp_game/screens/main_menu_screen.dart';
 import 'package:mp_game/utils/colors.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(ProviderScope(child: const MyApp()));
 }
 
 class MyApp extends StatelessWidget {
@@ -18,29 +19,27 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(
-          create: (context) =>  RoomDataProvider(),
-        ),
-        ChangeNotifierProvider(
-          create: (context) =>  ClientDataProvider(),
-        ),
-      ],
-      child: MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData.dark().copyWith(
-        scaffoldBackgroundColor: bgColor, // 주석처리하는게 ㄱㅊ
-      ),
-      routes: {
-        MainMenuScreen.routeName: (context) => const MainMenuScreen(),
-        JoinRoomScreen.routeName: (context) => const JoinRoomScreen(),
-        CreateRoomScreen.routeName: (context) => const CreateRoomScreen(),
-        GameScreen.routeName: (context) => const GameScreen(),
-      },
-      initialRoute: MainMenuScreen.routeName,
-      home: MainMenuScreen(),
+    // providers: [
+    //   ChangeNotifierProvider(
+    //     create: (context) =>  RoomDataProvider(),
+    //   ),
+    //   ChangeNotifierProvider(
+    //     create: (context) =>  ClientDataProvider(),
+    //   ),
+    // ],
+    return MaterialApp(
+    title: 'Flutter Demo',
+    theme: ThemeData.dark().copyWith(
+      scaffoldBackgroundColor: bgColor, // 주석처리하는게 ㄱㅊ
     ),
+    routes: {
+      MainMenuScreen.routeName: (context) => const MainMenuScreen(),
+      JoinRoomScreen.routeName: (context) => const JoinRoomScreen(),
+      CreateRoomScreen.routeName: (context) => const CreateRoomScreen(),
+      GameScreen.routeName: (context) => const GameScreen(),
+    },
+    initialRoute: MainMenuScreen.routeName,
+    home: MainMenuScreen(),
     );
   }
 }

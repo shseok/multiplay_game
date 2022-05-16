@@ -9,4 +9,8 @@ class ClientState {
   Map<String, dynamic> toJson() => {
     'timer': timer,
   };
+
+  ClientState copyWith({required Map<String, dynamic> timer}){
+    return ClientState(timer: timer);
+}
 }

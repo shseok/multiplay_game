@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:mp_game/provider/client_data_provider.dart';
-import 'package:provider/provider.dart';
+// import 'package:provider/provider.dart';
 
 import '../provider/room_data_provider.dart';
 import '../widgets/custom_textfield.dart';
@@ -19,10 +20,10 @@ class _WaitingLobbyState extends State<WaitingLobby> {
   @override
   void initState() {
     super.initState();
-    roomIdController = TextEditingController(
-      text:
-      Provider.of<RoomDataProvider>(context, listen: false).roomData['_id'],
-    );
+    // roomIdController = TextEditingController(
+    //   text:
+    //   Provider.of<RoomDataProvider>(context, listen: false).roomData['_id'],
+    // );
     // _socketMethods.updateTimer(context);
   }
 
@@ -34,19 +35,25 @@ class _WaitingLobbyState extends State<WaitingLobby> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        const Text('Waiting for a player to join...'),
-        const SizedBox(height: 20),
-        CustomTextField(
-          controller: roomIdController,
-          hintText: '',
-          isReadOnly: true,
-        ),
-        const SizedBox(height: 20),
-        GameReadyButton()
-      ],
+    return Consumer(
+      builder: (context, ref, child) {
+        final roomStateProvider = ref.watch(roomDataProvider);
+        roomIdController = TextEditingController(text: roomStateProvider['_id']);
+        return Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            const Text('Waiting for a player to join...'),
+            const SizedBox(height: 20),
+            CustomTextField(
+              controller: roomIdController,
+              hintText: '',
+              isReadOnly: true,
+            ),
+            const SizedBox(height: 20),
+            GameReadyButton()
+          ],
+        );
+      },
     );
   }
 }
