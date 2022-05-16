@@ -4,11 +4,13 @@ import 'package:mp_game/provider/client_data_provider.dart';
 // import 'package:provider/provider.dart';
 
 import '../provider/room_data_provider.dart';
+import '../resources/socket_methods.dart';
 import '../widgets/custom_textfield.dart';
 import '../widgets/game_ready_button.dart';
 
 class WaitingLobby extends StatefulWidget {
-  const WaitingLobby({Key? key}) : super(key: key);
+  final Map<String, dynamic> roomStateProvider;
+  const WaitingLobby({Key? key, required this.roomStateProvider}) : super(key: key);
 
   @override
   State<WaitingLobby> createState() => _WaitingLobbyState();
@@ -37,11 +39,30 @@ class _WaitingLobbyState extends State<WaitingLobby> {
   Widget build(BuildContext context) {
     return Consumer(
       builder: (context, ref, child) {
-        final roomStateProvider = ref.watch(roomDataProvider);
-        roomIdController = TextEditingController(text: roomStateProvider['_id']);
+        ref.watch(socketMethodsProvider.notifier).updateTimer(context);
+        final clientStateProvider = ref.watch(clientDataProvider).toJson();
+        roomIdController = TextEditingController(text: widget.roomStateProvider['_id']);
+        print('client data in game screen => $clientStateProvider');
+
         return Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
+            Column(
+              children: [
+                Chip(
+                  label: Text(
+                    clientStateProvider['timer']['msg'].toString(),
+                    style: const TextStyle(
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
+                Text(
+                  clientStateProvider['timer']['countDown'].toString(),
+                  style: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
             const Text('Waiting for a player to join...'),
             const SizedBox(height: 20),
             CustomTextField(
