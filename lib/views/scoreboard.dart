@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -10,38 +11,44 @@ class Scoreboard extends StatelessWidget {
   Widget build(BuildContext context) {
     RoomDataProvider roomDataProvider = Provider.of<RoomDataProvider>(context);
 
-    return Column(
-      // mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Text('현재 순위'),
-        Row(
-          // mainAxisAlignment: MainAxisAlignment.start,
-          children: [Text('이름'), SizedBox(width: 30.0,), Text('점수')],
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.all(
+          width: 1,
+          color: Colors.red,
         ),
-        for(var player in roomDataProvider.roomData['players']) Padding(
-          padding: const EdgeInsets.all(2),
-          child: Row(
+      ),
+      child: Column(
+        // mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              Text(
-                player['nickname'],
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              SizedBox(width: 30.0,),
-              Text(
-                player['points'].toInt().toString(),
-                style: const TextStyle(
-                  fontSize: 20,
-                  color: Colors.white,
-                ),
-              ),
+              Icon(Icons.military_tech, color: Color(0xffA876DE)),
             ],
           ),
-        ),
-      ],
+          for(var player in roomDataProvider.roomData['players']) Padding(
+            padding: const EdgeInsets.all(2),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Text('1등', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.yellow, foreground: Paint()
+                  ..style = PaintingStyle.stroke
+                  ..strokeWidth = 6
+                  ..color = Colors.blue,),),
+                SizedBox(width: 20.0,),
+                Text(
+                  player['nickname'],
+                  style: const TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

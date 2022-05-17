@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mp_game/views/scoreboard.dart';
 import 'package:provider/provider.dart';
 import '../provider/client_data_provider.dart';
 import '../provider/room_data_provider.dart';
@@ -95,6 +96,12 @@ class QuizQuestions extends StatelessWidget {
                   ),
                   SizedBox(height: 30.0),
                   Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                        width: 1,
+                        color: Colors.orange,
+                      ),
+                    ),
                     width: MediaQuery.of(context).size.width - 2.0,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -182,6 +189,15 @@ class QuizQuestions extends StatelessWidget {
                 ),
               ],
             ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                const Scoreboard(),
+              ],
+            ),
+            // const TicTacToeBoard(),
+            Text(
+                '나 : ${roomData['turn']['nickname']}'),
           ],
         );
       },
