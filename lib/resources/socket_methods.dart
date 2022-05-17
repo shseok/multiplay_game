@@ -6,6 +6,7 @@ import 'package:socket_io_client/socket_io_client.dart';
 
 import '../provider/room_data_provider.dart';
 import '../screens/game_screen.dart';
+import '../screens/quiz_screen.dart';
 import '../utils/utils.dart';
 import 'game_methods.dart';
 
@@ -42,15 +43,21 @@ class SocketMethods {
   }
 
   // playerId를 주고 server에서 leader를 찾으라는 방식 / 하지만 여기서 nickname을 주고 찾으라고 할 수도 있겠다.
-  void startTimer(String roomId, String playerId) {
-    _socketClient.emit('timer', {
+  void startReadyTimer(String roomId, String playerId) {
+    _socketClient.emit('readyTimer', {
       'roomId': roomId,
       'playerId': playerId,
+    });
+  }
+  void startGameTimer(String roomId){
+    _socketClient.emit("gameTimer", {
+      'roomId': roomId,
     });
   }
 
   // LISTENERS
   void createRoomSuccessListener(BuildContext context) {
+    print('listen createRoomSuccessListener in socket_methods');
     _socketClient.on('createRoomSuccess', (room) {
       Provider.of<RoomDataProvider>(context, listen: false)
           .updateRoomData(room);
@@ -91,10 +98,25 @@ class SocketMethods {
     });
   }
 
-  void updateTimer(BuildContext context) {
-    _socketClient.on('timer', (data) {
+  void updateReadyTimer(BuildContext context) {
+    _socketClient.on('readyTimer', (data) {
       Provider.of<ClientDataProvider>(context, listen: false)
           .setClientState(data);
+    });
+  }
+  void updateStartTimer(BuildContext context) {
+    _socketClient.on('gameTimer', (data) {
+      Provider.of<ClientDataProvider>(context, listen: false)
+          .setClientState(data);
+    });
+  }
+
+  void startGameListener(BuildContext context){
+    print('listen startgame in socket_methods');
+    _socketClient.on('startGame', (data) {
+      Provider.of<RoomDataProvider>(context, listen: false)
+          .updateRoomData(data);
+      Navigator.pushNamed(context, QuizScreen.routeName);
     });
   }
 

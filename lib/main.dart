@@ -5,6 +5,7 @@ import 'package:mp_game/screens/create_room_screen.dart';
 import 'package:mp_game/screens/game_screen.dart';
 import 'package:mp_game/screens/join_room_screen.dart';
 import 'package:mp_game/screens/main_menu_screen.dart';
+import 'package:mp_game/screens/quiz_screen.dart';
 import 'package:mp_game/utils/colors.dart';
 import 'package:provider/provider.dart';
 
@@ -37,6 +38,7 @@ class MyApp extends StatelessWidget {
         JoinRoomScreen.routeName: (context) => const JoinRoomScreen(),
         CreateRoomScreen.routeName: (context) => const CreateRoomScreen(),
         GameScreen.routeName: (context) => const GameScreen(),
+        QuizScreen.routeName: (context) => const QuizScreen(),
       },
       initialRoute: MainMenuScreen.routeName,
       home: MainMenuScreen(),

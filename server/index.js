@@ -135,18 +135,18 @@ io.on('connection', (socket) => {
     }
   });
 
-  socket.on("timer", async ({ roomId, playerId }) => {
+  socket.on("readyTimer", async ({ roomId, playerId }) => {
     let countDown = 5;
     console.log(`timer started! ${roomId} ${playerId} ${typeof(roomId)}`);
     let room = await Room.findById(roomId); // mongoose.Model.findById
     let player = room.players.id(playerId); // id 내장 함수??
 
-    console.log(`timer -> ${player}`);
+    console.log(`readyTimer -> ${player}`);
     if (player.isPartyLeader) {
       let timerId = setInterval(async () => {
         if (countDown >= 0) {
           io.to(roomId).emit(
-            "timer", {
+            "readyTimer", {
             countDown,
             msg: "게임 준비중..."
           }
@@ -157,8 +157,7 @@ io.on('connection', (socket) => {
           console.log('게임을 시작합니다!'); //  참여불가
           room.isJoin = false;
           room = await room.save();
-          io.to(roomId).emit("updateRoom", room);
-          startGameClock(roomId); // 본게임 countdown
+          io.to(roomId).emit("startGame", room);
           clearInterval(timerId);
         }
       }, 1000);
@@ -166,6 +165,10 @@ io.on('connection', (socket) => {
       
     }
   });
+  
+  socket.on("gameTimer", async ({ roomId }) => {
+    startGameClock(roomId);
+  })
 });
 
 const startGameClock = (roomId) => {
@@ -173,7 +176,7 @@ const startGameClock = (roomId) => {
 
   let timerId = setInterval(() => {
     if (time >= 0) {
-      io.to(roomId).emit("timer", {
+      io.to(roomId).emit("gameTimer", {
         countDown: time,
         msg: "남은 시간",
       });

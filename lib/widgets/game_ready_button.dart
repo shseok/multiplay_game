@@ -37,7 +37,7 @@ class _GameReadyButtonState extends State<GameReadyButton> {
   }
 
   void handleStart(RoomDataProvider gameData){
-    _socketMethods.startTimer(gameData.roomData['_id'], playerMe['_id']);
+    _socketMethods.startReadyTimer(gameData.roomData['_id'], playerMe['_id']);
     setState(() {
       isBtn = false;
     });
