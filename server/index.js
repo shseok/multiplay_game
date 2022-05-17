@@ -114,61 +114,88 @@ io.on('connection', (socket) => {
     } catch (e) {
       console.log(e);
     }
-  });
-
-  socket.on("winner", async ({ winnerSocketId, roomId }) => {
-    try {
-      let room = await Room.findById(roomId);
-      let player = room.players.find(
-        (playerr) => playerr.socketID == winnerSocketId
-      );
-      player.points += 1;
-      room = await room.save();
-
-      if (player.points >= room.maxRounds) {
-        io.to(roomId).emit("endGame", player);
-      } else {
-        io.to(roomId).emit("pointIncrease", player);
-      }
-    } catch (e) {
-      console.log(e);
-    }
-  });
-
-  socket.on("readyTimer", async ({ roomId, playerId }) => {
-    let countDown = 5;
-    console.log(`timer started! ${roomId} ${playerId} ${typeof(roomId)}`);
-    let room = await Room.findById(roomId); // mongoose.Model.findById
-    let player = room.players.id(playerId); // id 내장 함수??
-
-    console.log(`readyTimer -> ${player}`);
-    if (player.isPartyLeader) {
-      let timerId = setInterval(async () => {
-        if (countDown >= 0) {
-          io.to(roomId).emit(
-            "readyTimer", {
-            countDown,
-            msg: "게임 준비중..."
-          }
-          );
-          console.log(countDown);
-          countDown--;
-        } else {
-          console.log('게임을 시작합니다!'); //  참여불가
-          room.isJoin = false;
-          room = await room.save();
-          io.to(roomId).emit("startGame", room);
-          clearInterval(timerId);
-        }
-      }, 1000);
-    } else {
-      
-    }
-  });
+    });
   
-  socket.on("gameTimer", async ({ roomId }) => {
-    startGameClock(roomId);
-  })
+    socket.on("round", async ({ curRound, roomId }) => {
+      try {
+        let room = await Room.findById(roomId);
+        room.currentRound = curRound;
+        room = await room.save();
+        io.to(roomId).emit("updateRoom", room);
+        console.log(`${curRound}} 라운드가 저장되었습니다.`);
+      } catch (e) {
+        console.log(e);
+      }
+    });
+      
+    socket.on("ox", async ({answer, roomId}) => {
+      try {
+        let room = await Room.findById(roomId);
+        let player = room.players.find(
+            (playerr) => playerr.socketID == socket.id
+        );
+        player.points += 1; // round의 문제의 정답과 answer가 같아야함
+        room = await room.save();
+        io.to(roomId).emit("pointIncrease", player);
+        console.log(`${player.nickname} : ${socket.id} == ${player.socketID} => ${answer}`);
+      } catch {
+        console.log(e);
+      }
+    });
+
+    socket.on("winner", async ({ winnerSocketId, roomId }) => {
+      try {
+        let room = await Room.findById(roomId);
+        let player = room.players.find(
+          (playerr) => playerr.socketID == winnerSocketId
+        );
+        player.points += 1;
+        room = await room.save();
+
+        if (player.points >= room.maxRounds) {
+          io.to(roomId).emit("endGame", player);
+        } else {
+          io.to(roomId).emit("pointIncrease", player);
+        }
+      } catch (e) {
+        console.log(e);
+      }
+    });
+
+    socket.on("readyTimer", async ({ roomId, playerId }) => {
+      let countDown = 5;
+      console.log(`timer started! ${roomId} ${playerId} ${typeof(roomId)}`);
+      let room = await Room.findById(roomId); // mongoose.Model.findById
+      let player = room.players.id(playerId); // id 내장 함수??
+
+      console.log(`readyTimer -> ${player}`);
+      if (player.isPartyLeader) {
+        let timerId = setInterval(async () => {
+          if (countDown >= 0) {
+            io.to(roomId).emit(
+              "readyTimer", {
+              countDown,
+              msg: "게임 준비중..."
+            }
+            );
+            console.log(countDown);
+            countDown--;
+          } else {
+            console.log('게임을 시작합니다!'); //  참여불가
+            room.isJoin = false;
+            room = await room.save();
+            io.to(roomId).emit("startGame", room);
+            clearInterval(timerId);
+          }
+        }, 1000);
+      } else {
+        
+      }
+    });
+    
+    socket.on("gameTimer", async ({ roomId }) => {
+      startGameClock(roomId);
+    });
 });
 
 const startGameClock = (roomId) => {

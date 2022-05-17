@@ -32,10 +32,13 @@ class Scoreboard extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                Text('1등', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.yellow, foreground: Paint()
-                  ..style = PaintingStyle.stroke
-                  ..strokeWidth = 6
-                  ..color = Colors.blue,),),
+                Text('1등', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.yellow,
+                  // foreground: Paint()
+                  // ..style = PaintingStyle.stroke
+                  // ..strokeWidth = 6
+                  // ..color = Colors.blue,
+                ),
+                ),
                 SizedBox(width: 20.0,),
                 Text(
                   player['nickname'],

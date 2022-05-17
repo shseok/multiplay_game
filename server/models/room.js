@@ -9,7 +9,7 @@ const roomSchema = new mongoose.Schema({
   },
   maxRounds: {
     type: Number,
-    default: 6, // 총 6라운드
+    default: 10, // 총 6라운드
   },
   currentRound: {
     required: true, // required ?

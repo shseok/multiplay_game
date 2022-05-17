@@ -33,6 +33,20 @@ class SocketMethods {
     }
   }
 
+  // playerId를 주고 server에서 leader를 찾으라는 방식 / 하지만 여기서 nickname을 주고 찾으라고 할 수도 있겠다.
+  void startReadyTimer(String roomId, String playerId) {
+    _socketClient.emit('readyTimer', {
+      'roomId': roomId,
+      'playerId': playerId,
+    });
+  }
+
+  void startGameTimer(String roomId) {
+    _socketClient.emit("gameTimer", {
+      'roomId': roomId,
+    });
+  }
+
   void tapGrid(int index, String roomId, List<String> displayElements) {
     if (displayElements[index] == '') {
       _socketClient.emit('tap', {
@@ -42,20 +56,18 @@ class SocketMethods {
     }
   }
 
-  // playerId를 주고 server에서 leader를 찾으라는 방식 / 하지만 여기서 nickname을 주고 찾으라고 할 수도 있겠다.
-  void startReadyTimer(String roomId, String playerId) {
-    _socketClient.emit('readyTimer', {
-      'roomId': roomId,
-      'playerId': playerId,
-    });
-  }
-  void startGameTimer(String roomId){
-    _socketClient.emit("gameTimer", {
-      'roomId': roomId,
-    });
+  void handleOSubmit(String answer, String roomId) {
+    _socketClient.emit("ox", {'answer': answer, 'roomId': roomId}); // o
   }
 
-  // LISTENERS
+  void handleXSubmit(String answer, String roomId) {
+    _socketClient.emit("ox", {'answer': answer, 'roomId': roomId}); // x
+  }
+
+  void updateRound(int curRound, String roomId){
+    _socketClient.emit("round", {'curRound': curRound, 'roomId': roomId});
+  }
+  // LISTENERS ----------------------------------------------------------------------
   void createRoomSuccessListener(BuildContext context) {
     print('listen createRoomSuccessListener in socket_methods');
     _socketClient.on('createRoomSuccess', (room) {
@@ -92,6 +104,7 @@ class SocketMethods {
 
   void updateRoomListener(BuildContext context) {
     // createRoomSuccessListener와 비슷하지만 navigator x
+    print('listen updateRoomListener in socket_methods');
     _socketClient.on('updateRoom', (data) {
       Provider.of<RoomDataProvider>(context, listen: false)
           .updateRoomData(data);
@@ -99,40 +112,44 @@ class SocketMethods {
   }
 
   void updateReadyTimer(BuildContext context) {
+    print('listen updateReadyTimer in socket_methods');
     _socketClient.on('readyTimer', (data) {
       Provider.of<ClientDataProvider>(context, listen: false)
           .setClientState(data);
     });
   }
+
   void updateStartTimer(BuildContext context) {
+    print('listen updateStartTimer in socket_methods');
     _socketClient.on('gameTimer', (data) {
       Provider.of<ClientDataProvider>(context, listen: false)
           .setClientState(data);
     });
   }
 
-  void startGameListener(BuildContext context){
+  void startGameListener(BuildContext context) {
     print('listen startgame in socket_methods');
     _socketClient.on('startGame', (data) {
       Provider.of<RoomDataProvider>(context, listen: false)
           .updateRoomData(data);
+      Provider.of<ClientDataProvider>(context, listen: false).setClientState({'countDown': 10, 'msg': '남은 시간'});
       Navigator.pushNamed(context, QuizScreen.routeName);
     });
   }
 
-  void tappedListener(BuildContext context) {
-    _socketClient.on('tapped', (data) {
-      RoomDataProvider roomDataProvider =
-          Provider.of<RoomDataProvider>(context, listen: false);
-      roomDataProvider.updateDisplayElements(
-        data['index'],
-        data['choice'],
-      );
-      roomDataProvider.updateRoomData(data['room']);
-      // check winnner
-      GameMethods().checkWinner(context, _socketClient);
-    });
-  }
+  // void tappedListener(BuildContext context) {
+  //   _socketClient.on('tapped', (data) {
+  //     RoomDataProvider roomDataProvider =
+  //         Provider.of<RoomDataProvider>(context, listen: false);
+  //     roomDataProvider.updateDisplayElements(
+  //       data['index'],
+  //       data['choice'],
+  //     );
+  //     roomDataProvider.updateRoomData(data['room']);
+  //     // check winnner
+  //     GameMethods().checkWinner(context, _socketClient);
+  //   });
+  // }
 
   void pointIncreaseListener(BuildContext context) {
     _socketClient.on('pointIncrease', (playerData) {
