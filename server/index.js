@@ -37,7 +37,7 @@ io.on('connection', (socket) => {
         let player = {
             socketID: socket.id,
             nickname,
-          playerType: "X", // 제거하기
+          playerType: "N",
           isPartyLeader: true,
           };
           room.players.push(player);
@@ -70,7 +70,7 @@ io.on('connection', (socket) => {
         let player = {
           nickname,
           socketID: socket.id,
-          playerType: "O",
+          playerType: "N",
         };
         socket.join(roomId);
         room.players.push(player);
@@ -119,10 +119,24 @@ io.on('connection', (socket) => {
     socket.on("round", async ({ curRound, roomId }) => {
       try {
         let room = await Room.findById(roomId);
-        room.currentRound = curRound;
+        let player = room.players.find(
+            (playerr) => playerr.socketID == socket.id
+        );
+        room.currentRound = curRound + 1;
         room = await room.save();
         io.to(roomId).emit("updateRoom", room);
-        console.log(`${curRound}} 라운드가 저장되었습니다.`);
+        let roundAnswer = room.questions.filter(question => question.id == curRound)[0].oxAnswer;
+    
+        if (roundAnswer == player.playerType) {
+          player.points += 1;
+          room = await room.save();
+          console.log(player);
+          io.to(roomId).emit("pointIncrease", player); 
+          console.log('정답입니다.');
+        } else {
+          console.log('정답이 아닙니다.');
+        }
+        console.log(`다음 라운드 : ${curRound + 1}}`);
       } catch (e) {
         console.log(e);
       }
@@ -134,9 +148,8 @@ io.on('connection', (socket) => {
         let player = room.players.find(
             (playerr) => playerr.socketID == socket.id
         );
-        player.points += 1; // round의 문제의 정답과 answer가 같아야함
+        player.playerType = answer;
         room = await room.save();
-        io.to(roomId).emit("pointIncrease", player);
         console.log(`${player.nickname} : ${socket.id} == ${player.socketID} => ${answer}`);
       } catch {
         console.log(e);

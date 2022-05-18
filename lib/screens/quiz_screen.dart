@@ -7,6 +7,7 @@ import '../provider/client_data_provider.dart';
 import '../provider/room_data_provider.dart';
 import '../resources/socket_methods.dart';
 import '../views/ozQuiz.dart';
+import '../views/scoreboard.dart';
 
 class QuizScreen extends StatefulWidget {
   static String routeName = '/quiz-room';
@@ -25,6 +26,7 @@ class _QuizScreenState extends State<QuizScreen> {
   void initState() {
     _socketMethods.updateStartTimer(context);
     _socketMethods.pointIncreaseListener(context);
+    _socketMethods.updateRoomListener(context);
     _socketMethods.startGameTimer(Provider.of<RoomDataProvider>(context, listen: false).roomData['_id']);
     print('initstate');
     super.initState();
@@ -53,7 +55,7 @@ class _QuizScreenState extends State<QuizScreen> {
           backgroundColor: Colors.transparent,
           body: PageView.builder(
               controller: pageCtr,
-              physics: NeverScrollableScrollPhysics(),
+              // physics: NeverScrollableScrollPhysics(),
               itemCount: questions.length,
               itemBuilder: (context, index) {
                 final question = questions[index];
@@ -61,8 +63,12 @@ class _QuizScreenState extends State<QuizScreen> {
                   // print('${count} in haveDimensions');
                   if (count < 1 && pageCtr.page!.toInt() + 1 < questions.length) {
                     // print('${count}! -> timer finish!');
-                      Timer(Duration(seconds: 3), () {
-                        _socketMethods.startGameTimer(roomData['_id']);
+                    // Timer(Duration(seconds: 3), () {
+                    //   _socketMethods.startGameTimer(roomData['_id']);
+                    // });
+                    // timer보다 항상 늦게 가야함
+                    Timer(Duration(seconds: 4), () {
+                      _socketMethods.updateRound(roomData['currentRound'], roomData['_id']);
                       });
                     Timer(Duration(seconds: 4), () {
                       // print("Yeah, this line is printed after 4 seconds");
@@ -207,7 +213,7 @@ class _QuizScreenState extends State<QuizScreen> {
                           onTap: () => {
                             print('O touch'),
                             _socketMethods.handleOSubmit(
-                              'O',
+                              'o',
                               roomData['_id'],
                             )
                           },
@@ -233,7 +239,7 @@ class _QuizScreenState extends State<QuizScreen> {
                           onTap: () => {
                             print('X touch'),
                             _socketMethods.handleOSubmit(
-                              'X',
+                              'x',
                               roomData['_id'],
                             )
                           },
@@ -257,13 +263,15 @@ class _QuizScreenState extends State<QuizScreen> {
                         ),
                       ],
                     ),
-                    // Row(
-                    //   mainAxisAlignment: MainAxisAlignment.start,
-                    //   children: [
-                    //     const Scoreboard(),
-                    //   ],
-                    // ),
-                    // // const TicTacToeBoard(),
+                    Expanded(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          const Scoreboard(),
+                        ],
+                      ),
+                    ),
+                    // const TicTacToeBoard(),
                     // Text('나 : ${roomData['turn']['nickname']}'),
                   ],
                 );
